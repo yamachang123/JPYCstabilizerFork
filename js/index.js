@@ -5,7 +5,7 @@
 
 "use strict";
 
-const VERSION_TEXT = "ver. 20210914.2Fork001";
+const VERSION_TEXT = "ver. 20210914.2Fork003";
 
 var nuko = {
 
@@ -16,22 +16,24 @@ var nuko = {
   // UPPERSAFETY: 117.0, // TEXT入力ミス制御
   // LOWERSAFETY: 111.0, // TEXT入力ミス制御
   
-  upperThreshold: 119.0, // maxPrice selling usdc  117.9,
-  lowerThreshold: 113.5, // minPrice selling jpyc 115.9,  
-
-  swapSlippage: 0.005, // 許容スリッページ
-
   jpyusdInterval: 30 * 1000, // ミリ秒 // USD/JPY From CoinGeko 
-  rateInterval: 15 * 1000, // ミリ秒 // RPC nodeに負荷をかけるので短くするのはお控えください Please do not shorten rateInterval. It causes high load of RPC node.
-  gasInterval: 10  * 1000,
+  rateInterval: 10 * 1000, // ミリ秒 // RPC nodeに負荷をかけるので短くするのはお控えください Please do not shorten rateInterval. It causes high load of RPC node.
+  gasInterval: 5  * 1000,
   
-  swapMaxJPYC: 5000,  //Quantity to sell JPYC
-  swapMaxUSDC: 50,   //Quantity to sell USDC
+  upperThreshold: 119.0, // maxPrice selling usdc  117.75,
+  lowerThreshold: 115.80, // minPrice selling jpyc 115.75,  
+
+  swapMaxJPYC: 2000,  //Quantity to sell JPYC
+  swapMaxUSDC: 20,   //Quantity to sell USDC
+  
+  swapSlippage: 0.75/100, // 許容スリッページ%
   swapGasMax: 100,
-  gasLimit: 300000,
+  gasLimit: 200*1000, ///155413/166952/253738
+
   swapMaxLog: 100,
   
-  gasPref: "standard", //初期値
+  /** fastest - safelowのリスト リテラル*/
+  gasPref: "faster", //初期値
   
 
   
@@ -49,6 +51,7 @@ var nuko = {
   rateReserveUSDC: [],
   rateReserveJPYC: [],
   balanceJPYC: 0,
+  /** もってるUSD  */
   balanceUSDC: 0,
   balanceMATIC: 0,
   balanceContractJPYC: null,
@@ -68,9 +71,9 @@ var nuko = {
   flgSwapping: 0,
   wallet: null,
   password: "vKthVqyWY7qvZCvh",
-  theDayOfTrueStable: "2021-10-10T10:10:10.000Z",
-  theDayOfNuko: "2021-09-13T10:00:00.000Z",
-  theDayOfNukoRateDeviate: 117.0 / 110.0,
+  // theDayOfTrueStable: "2021-10-10T10:10:10.000Z",
+  // theDayOfNuko: "2021-09-13T10:00:00.000Z",
+  // // theDayOfNukoRateDeviate: 117.0 / 110.0,
   contractRate: [],
 };
 
@@ -224,6 +227,8 @@ const goSwap = async (from, to, amount, minAmount, gas, pool) => {
   }
   nuko.flgSwapping = false;
   getBalance();
+
+
 };
 
 /**
@@ -265,15 +270,15 @@ const watchRate = async () => {
         }
       } else if (
         nuko.rate[i] < nuko.lowerThreshold &&
-        parseFloat(web3.utils.fromWei(nuko.balanceJPYC)) > 100
+        parseFloat(web3.utils.fromWei(nuko.balanceJPYC)) > nuko.swapMinJPYC
       ) {
         if (!nuko.flgSwapping) {
           nuko.flgSwapping = true;
           //console.log("JPYC -> USDC");
           let bl = parseFloat(web3.utils.fromWei(nuko.balanceJPYC)) * 0.99999;
           let amount = bl > nuko.swapMaxJPYC ? nuko.swapMaxJPYC : bl;
-          let minAmount = (amount / nuko.rate[i]) * (1.0 - nuko.swapSlippage);
-          // if (i == 1) minAmount = minAmount * 0.9;
+          let minAmount =
+          (amount / nuko.rate[i]) * (1.0 - nuko.swapSlippage[i]);
           goSwap(
             "JPYC",
             "USDC",
@@ -341,10 +346,18 @@ const getBalance = async () => {
       let m = parseFloat(web3.utils.fromWei(balance, "mwei"));
       m = Math.floor(m * Math.pow(10, 4)) / Math.pow(10, 4);
       $("#balanceUSDC").text(m);
-      return balance;
+      //return balance;
     });
-};
 
+  var tmp=0.0;
+  tmp+= Math.floor(nuko.balanceUSDC / Math.pow(10, 6))  * nuko.jpyusd;
+  tmp+= Math.floor(nuko.balanceJPYC / Math.pow(10, 18)) ;
+  $("#Howmuch").text(numberWithCommas(tmp.toFixed(0)));
+   
+};
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 const getAllowance = async (contractAddress, routerAddress, button) => {
   let allowanceContract = new web3.eth.Contract(abiERC20, contractAddress);
 
@@ -379,22 +392,22 @@ const updateAllowance = async () => {
   );
 };
 
+
+
 const watchGas = async () => {
-  
+
+
   nuko.gas = await getGas();
 
   $("#gasPrice").text(nuko.gas + ' ' + nuko.gasPref );
-  $("#gasFastest").text(
-    "fastest : " + parseInt(nuko.gasList.fastest) 
-  );
-  $("#gasFast").text("fast : " + parseInt(nuko.gasList.fast) );
-  $("#gasStandard").text(
-    "standard : " + parseInt(nuko.gasList.standard) );
 
-
-   $("#gasSafeLow").text(
-     "safeLow : "  + parseInt(nuko.gasList.safeLow) );
- 
+  
+  ['fastest', 'faster', 'fast','standard','safeLow'].forEach(element => {
+    //リスト更新
+    $("#gas"+element).text(    element + " : " + parseInt(nuko.gasList[element])   );
+    //テキスト更新
+    $("#gas"+element+ "Inf").text(    element + ":" + parseInt(nuko.gasList[element])   );
+  });
     
 
 };
@@ -402,13 +415,15 @@ const getGas = async () => {
   let response = await fetch("https://gasstation-mainnet.matic.network");
   let json = await response.json();
   nuko.gasList = json;
+  nuko.gasList.faster =
+    (parseInt(nuko.gasList.fastest) + parseInt(nuko.gasList.fast)) / 2;
+
   let gas = parseInt(json[nuko.gasPref]);
   return gas;
 };
 
 /**
  * コインGekoからUSD JPYを取得(仮想通貨ベース)
- * 
  */
 const getJPYUSD = async () => {
   let response = await fetch(
@@ -416,6 +431,12 @@ const getJPYUSD = async () => {
   );
   let json = await response.json();
   let jpyusd = parseInt(json.bitcoin.jpy) / parseInt(json.bitcoin.usd);
+
+// いくら得なのか計算
+
+
+
+
 
   // let deviateTorelance =
   //   Math.max(0, Date.parse(nuko.theDayOfTrueStable) - Date.now()) /
@@ -434,6 +455,16 @@ const watchJPYUSD = async () => {
   nuko.jpyusd = await getJPYUSD();
   $("#jpyusd").text(nuko.jpyusd.toFixed(2));
   updateLimit();
+
+  var tmp ;
+  tmp =  nuko.upperThreshold/nuko.jpyusd;
+    $("#upperVsCur").text(tmp.toFixed(4));
+  
+    tmp =  nuko.lowerThreshold/nuko.jpyusd;
+    $("#lowerVsCur").text(tmp.toFixed(4));
+
+
+
 };
 
 const approveCoin = async (tokenContractAddress, spenderAddress, id) => {
@@ -502,6 +533,10 @@ const main = () => {
 
   watchJPYUSD();
   nuko.jpyusdId = setInterval(watchJPYUSD, nuko.jpyusdInterval);
+
+  // var elem = document.getElementById('AAA');
+  // alert(elem.val) ;
+
 };
 
 const updateAccount = () => {
@@ -660,30 +695,33 @@ const initialize = () => {
   $("#swapSwitch").on("change", () => {
     localStorage.switch = $("#swapSwitch").prop("checked");
   });
-  $("#gasFastest").on("click", () => {
+  $("#gasfastest").on("click", () => {
     localStorage.gasPref = nuko.gasPref = "fastest";
     watchGas();
   });
-  $("#gasFast").on("click", () => {
+
+  $("#gasfaster").on("click", () => {
+    nuko.gasPref = "faster";
+    localStorage.gasPref = nuko.gasPref;
+    watchGas();
+  });
+
+  $("#gasfast").on("click", () => {
     localStorage.gasPref = nuko.gasPref = "fast";
      
     watchGas();
   });
-  $("#gasStandard").on("click", () => {
+  $("#gasstandard").on("click", () => {
     localStorage.gasPref = nuko.gasPref = "standard";
     watchGas();
   });
   
-  $("#gasSafeLow").on("click", () => {
+  $("#gassafeLow").on("click", () => {
     localStorage.gasPref = nuko.gasPref = "safeLow";
     watchGas();
   });
 
-  
-  $("#upperLimit").on("click", () => {
-    localStorage.gasPref = nuko.gasPref = "safeLow";
-    watchGas();
-  });
+
   
   
 
