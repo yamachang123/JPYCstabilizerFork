@@ -1,41 +1,35 @@
-/**
- * jpyc stabilizer
- * index.js
- */
-
 "use strict";
-
-const VERSION_TEXT = "ver. 20210914.2Fork003";
-
 var nuko = {
-
-
   /*Const*/
+  
+  // ヤフオク0.912
+  upperJpycToJpyRate:0.912, // /0.912 はVプリカヤフオクの掛け目
 
+  // dカードプリカ 0.965
+  lowerJpycToJpyRateMin:0.965, // Vプリそのまま使った場合、Dカード3.5%との比較。殆ど無理ゲーな価格になる
   
-  // UPPERSAFETY: 117.0, // TEXT入力ミス制御
-  // LOWERSAFETY: 111.0, // TEXT入力ミス制御
+  UPPERSAFETY: 120.0, // コレ以下ではusdcを絶対売らない額を設定
+  LOWERSAFETY: 117.0, // コレ以上ではJPYを絶対売らない額を設定
   
+  swapMaxJPYC: 3000,  //Quantity to sell JPYC
+  swapMaxUSDC: 30,   //Quantity to sell USDC
+  
+  swapSlippage: 0.61/100, // 許容スリッページ0.5より下だとSusiはほぼ無理。
+  swapGasMax: 300, // 瞬時に万単位になることがあるので必須
+  gasLimit: 200*1000, // 何が良いのかわかりません。 QuickもSusiも時時刻刻変わってます。155413/166952/253738  
+
   jpyusdInterval: 30 * 1000, // ミリ秒 // USD/JPY From CoinGeko 
-  rateInterval: 10 * 1000, // ミリ秒 // RPC nodeに負荷をかけるので短くするのはお控えください Please do not shorten rateInterval. It causes high load of RPC node.
-  gasInterval: 5  * 1000,
+  rateInterval: 15 * 1000, // ミリ秒 // RPC nodeに負荷をかけるので短くするのはお控えください Please do not shorten rateInterval. It causes high load of RPC node.
+  gasInterval: 3  * 1000,
   
-  upperThreshold: 119.0, // maxPrice selling usdc  117.75,
-  lowerThreshold: 115.80, // minPrice selling jpyc 115.75,  
+  gasPref: "standard", //初期値
 
-  swapMaxJPYC: 2000,  //Quantity to sell JPYC
-  swapMaxUSDC: 20,   //Quantity to sell USDC
-  
-  swapSlippage: 0.75/100, // 許容スリッページ%
-  swapGasMax: 100,
-  gasLimit: 200*1000, ///155413/166952/253738
+  //#region var
 
   swapMaxLog: 100,
-  
-  /** fastest - safelowのリスト リテラル*/
-  gasPref: "faster", //初期値
-  
 
+  upperThreshold: 999.9, // maxPrice selling usdc   
+  lowerThreshold: 10.0, // minPrice selling jpyc   
   
   gas: 0,
   gasList: null,
@@ -75,8 +69,13 @@ var nuko = {
   // theDayOfNuko: "2021-09-13T10:00:00.000Z",
   // // theDayOfNukoRateDeviate: 117.0 / 110.0,
   contractRate: [],
+
+  //#endregion
+
+
 };
 
+//#region etcConstとインスタンス作成
 const NODE_URL =
   "wss://speedy-nodes-nyc.moralis.io/3e336936ccd6ec0af99dc191/polygon/mainnet/ws";
 
@@ -111,6 +110,8 @@ const options = {
 
 const provider = new Web3.providers.WebsocketProvider(NODE_URL, options);
 const web3 = new Web3(provider);
+
+//#endregion
 
 /**
  * goSwap
@@ -432,9 +433,21 @@ const getJPYUSD = async () => {
   let json = await response.json();
   let jpyusd = parseInt(json.bitcoin.jpy) / parseInt(json.bitcoin.usd);
 
-// いくら得なのか計算
+// JPYCの換金率/スリッページから、損をしない額を計算。USDCを売るとき
+    nuko.upperThreshold = jpyusd /nuko.upperJpycToJpyRate;
+    nuko.upperThreshold=  nuko.upperThreshold*(1+ nuko.swapSlippage);
+    //セーフティ
+    if (nuko.UPPERSAFETY > nuko.upperThreshold) { nuko.upperThreshold= nuko.UPPERSAFETY }
+    
+// 換金をせずにそのまま使った場合よりJPYC高なら売っちゃう。これを下回ることはほぼ無い。
+    nuko.lowerThreshold = jpyusd /nuko.lowerJpycToJpyRateMin;
+    //スリッページは考慮しません
+    //nuko.lowerThreshold=  nuko.lowerThreshold*(1+ nuko.swapSlippage);
+    //セーフティ
+    if (nuko.LOWERSAFETY < nuko.lowerThreshold) { nuko.lowerThreshold= nuko.LOWERSAFETY }
+    
 
-
+    updateLimit ;
 
 
 
@@ -496,15 +509,18 @@ const approveCoin = async (tokenContractAddress, spenderAddress, id) => {
 };
 
 const updateLimit = () => {
+  
+  
   $("#upperLimit").text(nuko.upperThreshold.toFixed(2));
   $("#lowerLimit").text(nuko.lowerThreshold.toFixed(2));
+
 };
 
 /**
  * main
  */
 const main = () => {
-  $("#versionText").text(VERSION_TEXT);
+  //$("#versionText").text(VERSION_TEXT);
   initialize();
   nuko.balanceContractJPYC = new web3.eth.Contract(
     abiERC20,
