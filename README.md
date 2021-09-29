@@ -3,9 +3,13 @@
 see article on hide.ac [https://hide.ac/articles/ZZoaKG4yb](https://hide.ac/articles/ZZoaKG4yb)
 
 ## update log
-### [v.2021-09-29F.0]
- * local動作のみで動作していた下記Verからフォーク
- * 
+### [JPYCstabilizerFork/v.2021-09-29.1]
+ * localのJsのみで動作していたv.20210914.2からフォーク。Html開くと動作します。
+ * 割引率を決めて、USD/JPY のレートから上下のトリガーを自動設定します
+ * 割引がどの程度が妥当なのかは各位設定ください
+ * 最大スリッページは0.6/100です。変えたい場合はソースいじってください。
+ * 最大スリッページをトリガー価格に反映可能です
+ * ガス代を選択するとClipboardに+0.1してコピーします
 
 ### [v.20210914.2](https://github.com/Nuko973663/JPYCstabilizer/releases/tag/v.20210914.2)
 
