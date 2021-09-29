@@ -10,7 +10,7 @@
     <meta name="description" content="" />
     <meta name="author" content="nuko973663" />
 
-    <title>Fork_JPYC Stabilizer - Dashboard</title>
+    <title>USDJPCref_JPYCStabilizer</title>
 
     <!-- Custom fonts for this template-->
     <link
@@ -56,7 +56,7 @@
             <div class="sidebar-brand-icon">
               <img src="img/jpyc.png" width="45px" /></i>
             </div>
-            <div class="sidebar-brand-text mx-2">JPYC stabilizer forkedVer</div>
+            <div class="sidebar-brand-text mx-2">JPYCstabilizer USD/JPY ref Ver</div>
           </a>
         
         
@@ -265,33 +265,70 @@
           <!-- Begin Page Content -->
           <div class="container-fluid" id="containerBody">
             <!-- Page Heading -->
-            <div
-              class="d-sm-flex align-items-center justify-content-between mb-4"
-            >
-              <h1 class="h3 mb-0 text-gray-800">Val</h1>
 
-
-              <div class="text-right">
-                  <a href="#" class="btn btn-primary btn-icon-split btn-sm">
- 
-                      <input class="text" id="upperLimitInput">↑</input>
-                  </a>
-                  <a href="#" class="btn btn-info btn-icon-split btn-sm">
-    
-                      <input class="text" id="lowerLimitOutput">↓</input>
-                  </a>
-              
-              </div>
-            </div>
 
             <div
               class="d-sm-flex align-items-center justify-content-between mb-4"
             >
-              <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+              <h1 class="h3 mb-0 text-gray-800"></h1>
 
 
 
+              <div class="text-center">
+                  <!-- <span class="icon text-white-70"><i class="fas fa-angle-double-up"></i> </span>
+                  <input type="text" background-color="yellow" id="upperLimitRate" value ="0.912"></input>
+                
+                  <span class="icon text-white-30">                      <i class="fas fa-angle-double-down"></i>                  </span>
+                  <input type="text" id="lowerLimitRate" value ="0.900"></input> -->
+
+
+                <label for="spreadWidth">exchange amount</label>
+                  <div class="input-group ">
+                    <input type="text" class="form-control" value="3300" aria-label="exchange amount of JPYC" aria-describedby="minJPYClabel" id="swapMaxJPYC" maxlength="6">
+                    <div class="input-group-append">
+                      <span class="input-group-text" id="minJPYClabel">JPYC</span>
+                    </div>
+                  </div>
+
+                  <div class="input-group ">
+                    <input type="text" class="form-control" value="30" aria-label="exchange amount of USDC" aria-describedby="minUSDClabel" id="swapMaxUSDC"  maxlength="6">
+                    <div class="input-group-append">
+                      <span class="input-group-text" id="minUSDClabel">USDC</span>
+                    </div>
+                  </div>
+                </div>
               <div class="text-right">
+                
+
+                  
+                  <div class="">
+
+
+
+                    <div class="form-group"  >
+                      
+                      <label for="spreadWidth">JPYCの法定通貨JPYに対しての割引率を設定</label>
+                      <div class="input-group mb-1">
+                        <div class="input-group-append">
+                          <span class="input-group-text" id="upperlabel">Discount rate when buying (%) </span>
+                        </div>
+                        <input type="text" class="form-control" value="8.8" aria-label="" aria-describedby="upperLabel" id="upperLimitRate" width="10em" data-width="10">
+                      </div>
+                      <div class="input-group mb-1">
+                        <div class="input-group-append">
+                          <span class="input-group-text" id="lowerlabel">Discount rate when selling (%) </span>
+                        </div>
+                        <input type="text" class="form-control" value="3.575" aria-label="" aria-describedby="lowerLabel" id="lowerLimitRate" >
+                      </div>
+                    </div>
+                  </div>
+
+                <input type="checkbox" data-toggle="toggle" value="true" data-height=10 data-width="300"
+                data-on="Include Maxslippage in price" data-off="not Include Maxslippage in price" 
+                id="IncludeSlippage"
+                >
+          
+
                   <a href="#" class="btn btn-primary btn-icon-split btn-sm">
                       <span class="icon text-white-70">
                           <i class="fas fa-angle-double-up"></i>
@@ -304,7 +341,7 @@
                       </span>
                       <span class="text" id="lowerLimit">100.0</span>
                   </a>
-              <input type="checkbox" data-toggle="toggle" data-onstyle="danger" id="swapSwitch">
+                <input type="checkbox" data-toggle="toggle" data-onstyle="danger" id="swapSwitch">
               </div>
             </div>
 
@@ -316,6 +353,12 @@
 
               <div class="text-right">
                 <!-- <a href="#" class="btn btn-primary btn-icon-split btn-sm mx-2"> -->
+
+                  <input type="checkbox" data-toggle="toggle" value="true" data-height=10 data-width="300"
+                  data-on="Copy gasprice to Clipboard(+0.1)" data-off="Don't use Clipboard" 
+                  id="CopygasPrice"
+                  >
+
                   <a href="#" class="btn btn-success"><span class="text" id="gasfastestInf">fastest</span> </a>
                   <a href="#" class="btn btn-success"><span class="text" id="gasfasterInf">faster</span> </a>
                   <a href="#" class="btn btn-success"><span class="text" id="gasfastInf">fast</span> </a>
@@ -324,14 +367,14 @@
                   
                 
                 <a href="#" class="btn btn-info btn-icon-split btn-sm"></a>
-                合計 <span class="text" id="Howmuch">-1</span> 円
+                <!-- 合計 <span class="text" id="Howmuch">-1</span> 円 -->
               </a>
-                  <a href="#" class="btn btn-primary btn-icon-split btn-sm">
+                  <!-- <a href="#" class="btn btn-primary btn-icon-split btn-sm">
                       <span class="text" id="upperVsCur">0</span><a class=".display-1" >%</a>
                   </a>
                   <a href="#" class="btn btn-info btn-icon-split btn-sm">
                       <span class="text" id="lowerVsCur">0</span><a class=".display-1" >%</a>
-                  </a>
+                  </a> -->
               
 
               </div>

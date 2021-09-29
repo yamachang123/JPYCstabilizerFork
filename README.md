@@ -3,6 +3,9 @@
 see article on hide.ac [https://hide.ac/articles/ZZoaKG4yb](https://hide.ac/articles/ZZoaKG4yb)
 
 ## update log
+### [v.2021-09-29F.0]
+ * local動作のみで動作していた下記Verからフォーク
+ * 
 
 ### [v.20210914.2](https://github.com/Nuko973663/JPYCstabilizer/releases/tag/v.20210914.2)
 
