@@ -1,6 +1,7 @@
-# JPYCstabilizer
+# JPYCstabilizerFork/v.2021-09-29.1
 
-see article on hide.ac [https://hide.ac/articles/ZZoaKG4yb](https://hide.ac/articles/ZZoaKG4yb)
+
+nukoさん作成のJPYCstabilizer 亜種になります。 [https://github.com/Nuko973663/JPYCstabilizer](https://github.com/Nuko973663/JPYCstabilizer)
 
 ## update log
 ### [JPYCstabilizerFork/v.2021-09-29.1]
