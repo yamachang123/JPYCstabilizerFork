@@ -3,6 +3,13 @@
 see article on hide.ac [https://hide.ac/articles/ZZoaKG4yb](https://hide.ac/articles/ZZoaKG4yb)
 
 ## update log
+
+
+[JPYCstabilizerFork/v.2021-10-03.1]
+* ガス代に固定値を足せるようにしました
+* 固定値と固定値使用可不可は設定可能です
+* クリップボード使うときは5回位左クリックしてください。
+
 ### [JPYCstabilizerFork/v.2021-09-29.1]
  * localのJsのみで動作していたv.20210914.2からフォーク。Html開くと動作します。
  * 割引率を決めて、USD/JPY のレートから上下のトリガーを自動設定します
