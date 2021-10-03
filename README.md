@@ -1,6 +1,6 @@
-# JPYCstabilizerFork/v.2021-09-29.1
+# JPYCstabilizerFork/USDJPYref
 
-これに関する記事作りました。一応ざっと目を通してください。
+これに関する記事作りました。 
 [https://hide.ac/articles/5f1J0k8TP](https://hide.ac/articles/5f1J0k8TP)
 
 
