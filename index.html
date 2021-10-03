@@ -187,9 +187,13 @@
                   <a class="dropdown-item" href="#" id="gasstandard">standard</a>
                   <a class="dropdown-item" href="#" id="gassafeLow">safeLow</a>   
 
+
+
                 </div>
+
               </div>
             </div>
+
 
             <div>
                 <a href="#" class="btn btn-primary btn-icon-split btn-sm mx-2">
@@ -203,7 +207,19 @@
                 </a>
             </div>
 
+            <input type="checkbox" data-toggle="toggle" value="true" data-height=10 data-width="300"
+            data-on="ガス代出力時に右記を足す" data-off="ガス代そのままで取引" 
+            id="gasPlus"
+            >
 
+ 
+              <input type="text" class="form-control2" value="0.1" 
+                aria-describedby="minJPYClabel" id="gasPlusAmount" maxlength="10">
+              <div class="input-group-append">
+                <span class="input-group-text" >wei</span>
+              </div>
+    
+            
             <!-- Topbar Navbar -->
             <ul class="navbar-nav ml-auto">
 
@@ -355,7 +371,7 @@
                 <!-- <a href="#" class="btn btn-primary btn-icon-split btn-sm mx-2"> -->
 
                   <input type="checkbox" data-toggle="toggle" value="true" data-height=10 data-width="300"
-                  data-on="Copy gasprice to Clipboard(+0.1)" data-off="Don't use Clipboard" 
+                  data-on="クリップボードにコピー" data-off="Don't use Clipboard" 
                   id="CopygasPrice"
                   >
 

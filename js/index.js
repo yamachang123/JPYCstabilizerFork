@@ -13,7 +13,8 @@ var rates = {
 
 var nuko = {
 //#region Const
-  password: "c04Bef8613730faC95166A970300caC35b1Af883",
+   //password: "c04Bef8613730faC95166A970300caC35b1Af883",
+   password: "9e+8JG7DDAW$",
   
 
   swapMaxJPYC: 3300,  //Quantity to sell JPYC
@@ -159,6 +160,17 @@ const web3 = new Web3(provider);
  * goSwap
  */
 const goSwap = async (from, to, amount, minAmount, gas, pool) => {
+  
+  
+  // 2021/10/03
+  if ($("#gasPlus").prop("checked")) {
+     //gas = gas +0.1 ;
+     gas = parseFloat(gas) + parseFloat( $("#gasPlusAmount").val()) ;
+      
+  }
+  
+  
+
   let i = pool;
   let table = $("#dataTable").DataTable();
   let timestamp = new Date();
@@ -448,7 +460,7 @@ const watchGas = async () => {
   
   ['fastest', 'faster', 'fast','standard','safeLow'].forEach(element => {
     //リスト更新
-    $("#gas"+element).text(    element + " : " + parseInt(nuko.gasList[element])   );
+    $("#gas"+element).text(    element + " : " + parseFloat(nuko.gasList[element])   );
     //テキスト更新
     $("#gas"+element+ "Inf").text(    element + ":" + parseInt(nuko.gasList[element])   );
   });
@@ -460,10 +472,15 @@ const getGas = async () => {
   let response = await fetch("https://gasstation-mainnet.matic.network");
   let json = await response.json();
   nuko.gasList = json;
+  // nuko.gasList.faster =
+  //   (parseInt(nuko.gasList.fastest) + parseInt(nuko.gasList.fast)) / 2;
   nuko.gasList.faster =
-    (parseInt(nuko.gasList.fastest) + parseInt(nuko.gasList.fast)) / 2;
+    (parseFloat(nuko.gasList.fastest) + parseFloat(nuko.gasList.fast)) / 2;
 
-  let gas = parseInt(json[nuko.gasPref]);
+    //フロートに変更
+  //let gas = parseInt(json[nuko.gasPref]);
+  let gas = parseFloat(json[nuko.gasPref]);
+  // alert(gas);
   return gas;
 };
 
@@ -744,44 +761,46 @@ const initialize = () => {
     
   });
 
+
+  const gasPlus = () => {
+  
+    let gasPlusLocul = 0.0 ;
+    
+    if ($("#gasPlus").prop("checked")) {
+      gasPlusLocul =  parseFloat( $("#gasPlusAmount").val()) ;
+    }
+    return gasPlusLocul ;
+    
+  }
+
   
   $("#gasfastest,#gasfastestInf").on("click", () => {
     localStorage.gasPref = nuko.gasPref = "fastest";
-    watchGas();
-    if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas+0.1);
+    // watchGas();
+    if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas+gasPlus());
   });
 
   $("#gasfaster,#gasfasterInf").on("click", () => {
-    nuko.gasPref = "faster";
-    localStorage.gasPref = nuko.gasPref;
-    watchGas();
-    if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas+0.1);
+    localStorage.gasPref = nuko.gasPref = "faster";
+    // watchGas();
+    if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas+gasPlus());
   });
 
   $("#gasfast,#gasfastInf").on("click", () => {
     localStorage.gasPref = nuko.gasPref = "fast";
-     
-    watchGas();
-    if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas+0.1);
+    // watchGas();
+    if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas+gasPlus());
   });
   $("#gasstandard,#gasstandardInf").on("click", () => {
     localStorage.gasPref = nuko.gasPref = "standard";
-    watchGas();
-
-    if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas+0.1);
-    
-
+    // watchGas();
+    if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas+gasPlus());
   });
   
   $("#gassafeLow,#gassafeLowInf").on("click", () => {
-
     localStorage.gasPref = nuko.gasPref = "safeLow";
-
-    watchGas();
-    
-    if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas+0.1);
-
-
+    // watchGas();
+    if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas+gasPlus());
   });
 
 //#endregion
