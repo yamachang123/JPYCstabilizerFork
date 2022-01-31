@@ -9,8 +9,10 @@ nukoさん作成のJPYCstabilizer 亜種になります。 [https://github.com/N
 
 ## update log
 
-
-[JPYCstabilizerFork/v.2021-10-03.1]
+### [JPYCstabilizer_GN/v.2022-01-31]
+* BlockNumber表示追加／各種値保存機能追加／Ver名を変更／アイコン追加／ガス代高速更新／チャートの色変更／
+* 
+### [JPYCstabilizerFork/v.2021-10-03.1]
 * ガス代に固定値を足せるようにしました
 * 固定値と固定値使用可不可は設定可能です
 * クリップボード使うときは5回位左クリックしてください。
