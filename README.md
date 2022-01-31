@@ -9,11 +9,8 @@ nukoさん作成のJPYCstabilizer 亜種になります。 [https://github.com/N
 
 ## update log
 
-### [JPYCstabilizerFork/v.2021-10-23.0]
-* DiscountRateとUSD/JPYのChartを追加しました
-* 既知のバグ *Rateのアップデートが30秒またないと更新されません。*
 
-### [JPYCstabilizerFork/v.2021-10-03.1]
+[JPYCstabilizerFork/v.2021-10-03.1]
 * ガス代に固定値を足せるようにしました
 * 固定値と固定値使用可不可は設定可能です
 * クリップボード使うときは5回位左クリックしてください。

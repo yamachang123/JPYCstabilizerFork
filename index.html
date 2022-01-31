@@ -2,13 +2,14 @@
 <html lang="ja">
 
 <head>
+    <link rel="icon" href="download.png">
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="nuko973663" />
 
-    <title>USDJPYref_JPYCStabilizer</title>
+    <title>JPYCStabilizer_GN</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
@@ -44,7 +45,7 @@
                 <div class="sidebar-brand-icon">
                     <img src="img/jpyc.png" width="45px" /></i>
                 </div>
-                <div class="sidebar-brand-text mx-2">JPYCstabilizer USD/JPY ref Ver</div>
+                <div class="sidebar-brand-text mx-2">JPYCstabilizer_GN</div>
             </a>
 
 
@@ -79,14 +80,14 @@
             <li class="nav-item">
                 <a class="nav-link" href="https://github.com/Nuko973663/JPYCstabilizer" target="_blank">
                     <i class="fab fa-github"></i>
-                    <span>GitHub</span></a>
+                    <span>NUKO先生@GitHub</span></a>
             </li>
 
             <!-- Nav Item -->
             <li class="nav-item">
                 <a class="nav-link" href="https://twitter.com/nuko973663" target="_blank">
                     <i class="fab fa-twitter"></i>
-                    <span>@nuko973663</span></a>
+                    <span>NUKO先生@nuko973663</span></a>
             </li>
 
             <!-- Nav Item -->
@@ -166,6 +167,7 @@
                                 <a class="dropdown-item" href="#" id="gasstandard">standard</a>
                                 <a class="dropdown-item" href="#" id="gassafeLow">safeLow</a>
 
+                               
 
 
                             </div>
@@ -281,14 +283,14 @@
 
                                 <label for="spreadWidth">exchange amount</label>
                                 <div class="input-group ">
-                                    <input type="text" class="form-control" value="3300" aria-label="exchange amount of JPYC" aria-describedby="minJPYClabel" id="swapMaxJPYC" maxlength="6">
+                                    <input type="text" class="form-control" value="5500" aria-label="exchange amount of JPYC" aria-describedby="minJPYClabel" id="swapMaxJPYC" maxlength="6">
                                     <div class="input-group-append">
                                         <span class="input-group-text" id="minJPYClabel">JPYC</span>
                                     </div>
                                 </div>
 
                                 <div class="input-group ">
-                                    <input type="text" class="form-control" value="30" aria-label="exchange amount of USDC" aria-describedby="minUSDClabel" id="swapMaxUSDC" maxlength="6">
+                                    <input type="text" class="form-control" value="50" aria-label="exchange amount of USDC" aria-describedby="minUSDClabel" id="swapMaxUSDC" maxlength="6">
                                     <div class="input-group-append">
                                         <span class="input-group-text" id="minUSDClabel">USDC</span>
                                     </div>
@@ -309,13 +311,13 @@
                             <div class="input-group-append">
                                 <span class="input-group-text" id="upperlabel">Discount rate when buying (%) </span>
                             </div>
-                            <input type="text" class="form-control" value="8.8" aria-label="" aria-describedby="upperLabel" id="upperLimitRate" width="10em" data-width="10">
+                            <input type="text" class="form-control" value="" aria-label="" aria-describedby="upperLabel" id="upperLimitRate" width="10em" data-width="10">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-append">
                                 <span class="input-group-text" id="lowerlabel">Discount rate when selling (%) </span>
                             </div>
-                            <input type="text" class="form-control" value="3.575" aria-label="" aria-describedby="lowerLabel" id="lowerLimitRate">
+                            <input type="text" class="form-control" value="" aria-label="" aria-describedby="lowerLabel" id="lowerLimitRate">
                         </div>
                     </div>
                 </div>
@@ -346,13 +348,16 @@
             <div class="text-right">
                 <!-- <a href="#" class="btn btn-primary btn-icon-split btn-sm mx-2"> -->
 
-                <input type="checkbox" data-toggle="toggle" value="true" data-height=10 data-width="300" data-on="クリップボードにコピー" data-off="Don't use Clipboard" id="CopygasPrice">
+                <!-- <input type="checkbox" data-toggle="toggle" value="true" data-height=10 data-width="300" data-on="クリップボードにコピー" data-off="Don't use Clipboard" id="CopygasPrice"> -->
 
                 <a href="#" class="btn btn-success"><span class="text" id="gasfastestInf">fastest</span> </a>
                 <a href="#" class="btn btn-success"><span class="text" id="gasfasterInf">faster</span> </a>
                 <a href="#" class="btn btn-success"><span class="text" id="gasfastInf">fast</span> </a>
                 <a href="#" class="btn btn-success"><span class="text" id="gasstandardInf">standard</span> </a>
                 <a href="#" class="btn btn-success"><span class="text" id="gassafeLowInf">safeLow</span>  </a>
+
+                <a href="#" class="btn btn-info"><span class="text" id="blockNumber">blockNumber</span>  </a>
+
 
 
                 <a href="#" class="btn btn-info btn-icon-split btn-sm"></a>

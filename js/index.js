@@ -1,8 +1,7 @@
 "use strict";
 
 var rates = {
-    UPPERSAFETY: 118.01, // コレ以下ではJPYを買わない額を設定
-    LOWERSAFETY: 118.0, // コレ以上ではJPYを売らない額を設定
+
 
 
 }
@@ -17,8 +16,8 @@ var nuko = {
     password: "9e+8JG7DDAW$",
 
 
-    swapMaxJPYC: 3300, //Quantity to sell JPYC
-    swapMaxUSDC: 30, //Quantity to sell USDC
+    swapMaxJPYC: -1, //Quantity to sell JPYC
+    swapMaxUSDC: -1, //Quantity to sell USDC
 
     swapSlippage: 0.60 / 100, // 許容スリッページ0.5より下だとSusiはほぼ無理。
     swapGasMax: 300, // 瞬時に万単位になることがあるので設定必須
@@ -70,9 +69,11 @@ var nuko = {
 };
 
 //#region etcConstとインスタンス作成
-const NODE_URL =
-    "wss://speedy-nodes-nyc.moralis.io/3e336936ccd6ec0af99dc191/polygon/mainnet/ws";
-
+const NODE_URL = [
+    //  "wss://speedy-nodes-nyc.moralis.io/3e336936ccd6ec0af99dc191/polygon/mainnet/ws",
+    //  "https://speedy-nodes-nyc.moralis.io/3e336936ccd6ec0af99dc191/polygon/mainnet",
+    "https://polygon-rpc.com",
+  ];
 const contractAddress = {
     JPYC: "0x6ae7dfc73e0dde2aa99ac063dcf7e8a63265108c",
     USDC: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
@@ -102,9 +103,9 @@ const options = {
     },
 };
 
-const provider = new Web3.providers.WebsocketProvider(NODE_URL, options);
-const web3 = new Web3(provider);
-
+// const provider = new Web3.providers.WebsocketProvider(NODE_URL, options);
+// const web3 = new Web3(provider);
+var web3 = new Web3(NODE_URL[0]);
 
 //#endregion
 
@@ -118,14 +119,9 @@ const getJPYUSD = async() => {
         "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=jpy%2Cusd"
     );
     let json = await response.json();
-    let usdjpy = parseInt(json.bitcoin.jpy) / parseInt(json.bitcoin.usd);
+    let usdjpy = parseFloat(json.bitcoin.jpy) / parseFloat(json.bitcoin.usd);
 
     var rat;
-
-
-
-
-
     rat = $("#upperLimitRate").val();
     if (isNaN(rat)) { rat = 50; }
     nuko.upperjpyctojpyrate = (1.0 - rat / 100);
@@ -137,36 +133,34 @@ const getJPYUSD = async() => {
     nuko.lowerjpyctojpyrate = (1.0 - rat / 100);
     localStorage.lowerjpyctojpyrate = rat;
 
-
     nuko.upperThreshold = usdjpy / nuko.upperjpyctojpyrate;
     if ($("#IncludeSlippage").prop("checked")) {
         nuko.upperThreshold = nuko.upperThreshold * (1 + nuko.swapSlippage);
     }
 
     //Safety
-    if (nuko.upperThreshold < rates.UPPERSAFETY) { nuko.upperThreshold = rates.UPPERSAFETY }
-
+    // if (nuko.upperThreshold < rates.UPPERSAFETY) { nuko.upperThreshold = rates.UPPERSAFETY }
     nuko.lowerThreshold = usdjpy / nuko.lowerjpyctojpyrate
     if ($("#IncludeSlippage").prop("checked")) {
         nuko.lowerThreshold = nuko.lowerThreshold / (1 + nuko.swapSlippage);
     }
-
     //Safety
-    if (nuko.lowerThreshold > rates.LOWERSAFETY) { nuko.lowerThreshold = rates.LOWERSAFETY }
-
-
-
-
-
+    // if (nuko.lowerThreshold > rates.LOWERSAFETY) { nuko.lowerThreshold = rates.LOWERSAFETY }
     //myrate の計算    
     //hack 初回にnuko.rate[0]が未定義でミスる。何でなのかわかりません
     rat = 100 * (1 - usdjpy / ((nuko.rate[0] + nuko.rate[1]) / 2));
     rates.myRate = rat;
-    $("#myRate").text(rat.toFixed(3));
 
+    var tmp1 =  (100 * (1 - usdjpy / ((nuko.rate[0] ) / 1))).toFixed(3)
+    var tmp2 =  (100 * (1 - usdjpy / ((nuko.rate[1] ) / 1))).toFixed(3)
 
+    $("#myRate").text(tmp1 + " / " + tmp2);
 
-    updateLimitView();
+    
+
+    
+      updateLimitView();
+
     return usdjpy;
 };
 
@@ -307,8 +301,8 @@ const goSwap = async(from, to, amount, minAmount, gas, pool) => {
 const watchRate = async() => {
     await getBalance();
     await getRate();
-
-
+    
+   
 
     if ($("#swapSwitch").prop("checked")) {
         console.log(nuko.rate);
@@ -366,11 +360,16 @@ const watchRate = async() => {
 };
 
 const getRate = async() => {
+
+    
+
+
     for (let i = 0; i < 2; i++) {
         await nuko.contractRate[i].methods
             .getReserves()
             .call()
             .then((values) => {
+
                 nuko.rateReserveUSDC[i] = values[0] / 10 ** 6;
                 nuko.rateReserveJPYC[i] = values[1] / 10 ** 18;
                 nuko.rateRaw[i] = nuko.rateReserveJPYC[i] / nuko.rateReserveUSDC[i];
@@ -378,11 +377,11 @@ const getRate = async() => {
                     Math.floor(nuko.rateRaw[i] * Math.pow(10, 2)) / Math.pow(10, 2);
             });
     }
+
     $("#rate").text(nuko.rate[0] + " / " + nuko.rate[1]);
     let timestamp = new Date();
     let dt = timestamp.toLocaleString().slice(0, -3);
     chartAddData(dt, [nuko.rate[0], nuko.rate[1]]);
-
     chartAddData2(dt, [rates.myRate, nuko.jpyusd]);
 
 };
@@ -403,13 +402,17 @@ const chartAddData2 = (label, data) => {
     chart.update();
 };
 
+
+
 const getBalance = async() => {
+
     web3.eth.getBalance(nuko.wallet[0].address).then((balance) => {
         nuko.balanceMATIC = balance;
         let m = parseFloat(web3.utils.fromWei(balance));
         m = Math.floor(m * Math.pow(10, 4)) / Math.pow(10, 4);
         $("#balanceMATIC").text(m);
     });
+    
 
     nuko.balanceContractJPYC.methods
         .balanceOf(nuko.wallet[0].address)
@@ -430,11 +433,13 @@ const getBalance = async() => {
             $("#balanceUSDC").text(m);
             //return balance;
         });
-
+        
     var tmp = 0.0;
     tmp += Math.floor(nuko.balanceUSDC / Math.pow(10, 6)) * nuko.jpyusd;
     tmp += Math.floor(nuko.balanceJPYC / Math.pow(10, 18));
     $("#Howmuch").text(numberWithCommas(tmp.toFixed(0)));
+    
+
 
 };
 
@@ -476,11 +481,17 @@ const updateAllowance = async() => {
 };
 
 
-
+var blockNo=-1;
 const watchGas = async() => {
 
 
     nuko.gas = await getGas();
+
+     if (blockNo == nuko.gasList['blockNumber']) return  ;
+     blockNo = parseInt(nuko.gasList['blockNumber']);
+     $("#blockNumber").text(blockNo);
+    
+
 
     $("#gasPrice").text(nuko.gas + ' ' + nuko.gasPref);
 
@@ -489,8 +500,9 @@ const watchGas = async() => {
         //リスト更新
         $("#gas" + element).text(element + " : " + parseFloat(nuko.gasList[element]));
         //テキスト更新
-        $("#gas" + element + "Inf").text(element + ":" + parseInt(nuko.gasList[element]));
+        $("#gas" + element + "Inf").text(element + ":" + parseFloat(nuko.gasList[element]));
     });
+
 
 
 
@@ -499,6 +511,9 @@ const getGas = async() => {
     let response = await fetch("https://gasstation-mainnet.matic.network");
     let json = await response.json();
     nuko.gasList = json;
+    
+
+
     // nuko.gasList.faster =
     //   (parseInt(nuko.gasList.fastest) + parseInt(nuko.gasList.fast)) / 2;
     nuko.gasList.faster =
@@ -507,16 +522,16 @@ const getGas = async() => {
     //フロートに変更
     //let gas = parseInt(json[nuko.gasPref]);
     let gas = parseFloat(json[nuko.gasPref]);
-    // alert(gas);
     return gas;
 };
 
 
 const watchJPYUSD = async() => {
+    
     nuko.jpyusd = await getJPYUSD();
     $("#jpyusd").text(nuko.jpyusd.toFixed(2));
     updateLimitView();
-
+    
     // var tmp ;
     // tmp =  nuko.upperThreshold/nuko.jpyusd;
     //   $("#upperVsCur").text(tmp.toFixed(4));
@@ -591,14 +606,17 @@ const main = () => {
         contractAddress.routerSushi
     );
 
-    watchRate();
-    nuko.rateId = setInterval(watchRate, nuko.rateInterval);
-
-    watchGas();
-    nuko.gasId = setInterval(watchGas, nuko.gasInterval);
-
+   
     watchJPYUSD();
     nuko.jpyusdId = setInterval(watchJPYUSD, nuko.jpyusdInterval);
+    
+    watchRate();
+    nuko.rateId = setInterval(watchRate, nuko.rateInterval);
+    
+    watchGas();
+    nuko.gasId = setInterval(watchGas, nuko.gasInterval);
+    
+
 
 
 
@@ -662,6 +680,9 @@ const updateLiquidity = () => {
 };
 
 const initialize = () => {
+
+    
+
     if (localStorage.gasPref == undefined) {
         localStorage.gasPref = "fastest";
     }
@@ -683,6 +704,8 @@ const initialize = () => {
     //   $("#modalTitle").text("Create New Wallet");
     //   $("#exampleModal").modal("show");
     // });
+
+ 
     $("#importWallet").on("click", () => {
         $("#import").show();
         $("#createNewWallet").hide();
@@ -779,72 +802,93 @@ const initialize = () => {
     });
     //Add 2021/09/28
     $("#upperLimitRate,#lowerLimitRate").on("focusout", () => {
-
         getJPYUSD();
+        localStorage.upperjpyctojpyrate = $("#upperjpyctojpyrate").val();
+        localStorage.lowerjpyctojpyrate = $("#lowerjpyctojpyrate").val();
+
     });
 
     $("#swapMaxJPYC,#swapMaxUSDC").on("focusout", () => {
         localStorage.swapMaxJPYC = nuko.swapMaxJPYC = $("#swapMaxJPYC").val();
         localStorage.swapMaxUSDC = nuko.swapMaxUSDC = $("#swapMaxUSDC").val();
 
+
+
     });
 
-
     const gasPlus = () => {
-
         let gasPlusLocul = 0.0;
-
         if ($("#gasPlus").prop("checked")) {
             gasPlusLocul = parseFloat($("#gasPlusAmount").val());
         }
         return gasPlusLocul;
-
     }
-
 
     $("#gasfastest,#gasfastestInf").on("click", () => {
         localStorage.gasPref = nuko.gasPref = "fastest";
-        // watchGas();
-        if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas + gasPlus());
+        getClipData();
     });
 
     $("#gasfaster,#gasfasterInf").on("click", () => {
         localStorage.gasPref = nuko.gasPref = "faster";
-        // watchGas();
-        if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas + gasPlus());
+        getClipData();
+
     });
 
     $("#gasfast,#gasfastInf").on("click", () => {
         localStorage.gasPref = nuko.gasPref = "fast";
-        // watchGas();
-        if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas + gasPlus());
+        getClipData();
     });
     $("#gasstandard,#gasstandardInf").on("click", () => {
         localStorage.gasPref = nuko.gasPref = "standard";
-        // watchGas();
-        if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas + gasPlus());
+        getClipData();
+
     });
 
     $("#gassafeLow,#gassafeLowInf").on("click", () => {
         localStorage.gasPref = nuko.gasPref = "safeLow";
-        // watchGas();
-        if ($("#CopygasPrice").prop("checked")) navigator.clipboard.writeText(nuko.gas + gasPlus());
+        getClipData();
+
     });
+
+
+    const getClipData = () => {
+        navigator.clipboard.writeText(nuko.gas + gasPlus());
+
+        for (i=1;i<=10;1) {
+            if (navigator.clipboard.text != nuko.gas + gasPlus()) {
+                navigator.clipboard.writeText(nuko.gas + gasPlus());
+                }{break;}
+        }
+    };
 
     //#endregion
 
+
+
+    document.getElementById("swapMaxJPYC").value = localStorage.swapMaxJPYC;
+    document.getElementById("swapMaxUSDC").value = localStorage.swapMaxUSDC;
+
+
     var rat;
-
-    if (!localStorage.upperjpyctojpyrate == undefined) {
-        rat = localStorage.upperjpyctojpyrate;
-        $("upperLimitRate").text(rat);
+    if (localStorage.upperjpyctojpyrate == undefined) {
+        rat = 100;
+    }else{
+        rat=localStorage.upperjpyctojpyrate;
     }
-    if (!localStorage.lowerjpyctojpyrate == undefined) {
-        rat = localStorage.lowerjpyctojpyrate;
-        $("#lowerLimitRate").text(rat);
+    
+    document.getElementById("upperLimitRate").value = rat;
+    
+    if (localStorage.lowerjpyctojpyrate == undefined) {
+        rat = 0;
+    }else{
+        rat=localStorage.lowerjpyctojpyrate;
     }
+    document.getElementById("lowerLimitRate").value = rat;
 
-    getJPYUSD();
+
+    $("#gasPlus").bootstrapToggle("on");
+
 
     nuko.swapMaxJPYC = parseFloat(
         localStorage.swapMaxJPYC ? localStorage.swapMaxJPYC : 1000.0
@@ -853,8 +897,8 @@ const initialize = () => {
         localStorage.swapMaxUSDC ? localStorage.swapMaxUSDC : 10.0
     );
 
-    // updateLimitView();
 
+    // updateLimitView();
     if (localStorage.switch == undefined) {
         localStorage.switch = "false";
     }
@@ -870,7 +914,9 @@ const initialize = () => {
     });
     table.column("0:visible").order("dsc").draw();
 
+    
     updateAllowance();
+    getJPYUSD();
 };
 
 // getReserves関数のABI
@@ -1133,34 +1179,70 @@ var chartJPYCUSDC2 = new Chart(ctx2, {
 
             {
                 label: "DiscountRate",
+
+                //ベジェ曲線の張力（0＝直線） 
                 lineTension: 0.3,
+
+                //線下を塗りつぶすかどうか
+                fill: true,
+
+
                 backgroundColor: "rgba(175, 0, 0, 0.05)",
                 borderColor: "rgba(175, 0, 0, 1)",
                 pointRadius: 3,
+                //ポイントの背景色
                 pointBackgroundColor: "rgba(204, 0, 255, 1)",
                 pointBorderColor: "rgba(204, 0, 255, 1)",
+
                 pointHoverRadius: 3,
-                pointHoverBackgroundColor: "rgba(204, 0, 255, 1)",
-                pointHoverBorderColor: "rgba(204, 0, 255, 1)",
+                pointHoverBackgroundColor: "rgba(204, 0, 255, 1)", //ホバー時のポイント背景色
+                pointHoverBorderColor: "rgba(204, 0, 255, 1)", //ホバー時のポイント背景色
+                //ホバー時の先の太さ
+                pointHoverBorderWidth: 2,
+                //ホバー時のポイントの半径
+                pointHoverRadius: 6,
+
+
+
                 pointHitRadius: 10,
                 pointBorderWidth: 2,
+
+
+                borderWidth: 0.6,
+                //ポイントの形(circle[○],rect[□],triangle[△]等がある)
+                pointStyle: 'triangle',
+                //ポイントの半径
+                radius: 4,
+
+
+
                 data: [],
                 yAxisID: "yRate"
             },
 
             {
                 label: "usdjpy",
+
+                fill: false,
+
                 lineTension: 0.3,
                 backgroundColor: "rgba(0, 0, 0, 0.00)",
                 borderColor: "rgba(10, 10, 0, 0.5)",
                 pointRadius: 3,
+
                 pointBackgroundColor: "rgba(78, 115, 223, 1)",
-                pointBorderColor: "rgba(78, 115, 223, 1)",
+                // pointBorderColor: "rgba(78, 115, 223, 1)",
+                pointBorderColor: "rgba(0, 0, 0, 1)",
                 pointHoverRadius: 3,
                 pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
-                pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+                // pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+                pointHoverBorderColor: "rgba(0, 0, 0, 1)",
+                
                 pointHitRadius: 10,
-                pointBorderWidth: 2,
+                pointBorderWidth: 1,
+                borderWidth: 0.2,
+
+
                 data: [],
                 yAxisID: "yUSDJPY"
             },
